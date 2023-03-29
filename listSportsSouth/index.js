@@ -78,8 +78,8 @@ function formatInventory(data){
       if(parseInt(item.ITYPE._text) == 1 || parseInt(item.ITYPE._text) == 2){
         if(await categories[item.CATID._text] != 'LOWERS' && await categories[item.CATID._text] != 'SPECIALTY'){
           // Skip if undefined
-          if(item.IMODEL._text == undefined){continue}
-          if(item.MFGINO._text == undefined){continue}
+          if(typeof item.IMODEL._text === "undefined"){continue}
+          if(typeof item.MFGINO._text === "undefined"){continue}
           //console.log(item);
           let newItem = {};
           newItem.upc = parseInt(item.ITUPC._text);
@@ -106,9 +106,9 @@ function formatInventory(data){
           if(parseInt(item.ITYPE._text) == 1){
             // if pistol
 
-            if(item.ITATR5._text == undefined){continue}
-            if(item.ITATR3._text == undefined){continue}
-            if(item.ITATR2._text == undefined){continue}
+            if(typeof item.ITATR5._text === "undefined"){continue}
+            if(typeof item.ITATR3._text === "undefined"){continue}
+            if(typeof item.ITATR2._text === "undefined"){continue}
 
             newItem.capacity = item.ITATR5._text.trimEnd();
             newItem.caliber = item.ITATR3._text.trimEnd();
@@ -116,9 +116,9 @@ function formatInventory(data){
           }else{
             // if long-gun
 
-            if(item.ITATR4._text == undefined){continue}
-            if(item.ITATR2._text == undefined){continue}
-            if(item.ITATR1._text == undefined){continue}
+            if(typeof item.ITATR4._text === "undefined"){continue}
+            if(typeof item.ITATR2._text === "undefined"){continue}
+            if(typeof item.ITATR1._text === "undefined"){continue}
 
             newItem.capactiy = item.ITATR4._text.trimEnd();
             newItem.caliber = item.ITATR2._text.trimEnd();
@@ -141,7 +141,7 @@ function filterInventory(inventory){
   let filtered = [];
   
   inventory.map( async (item) => {
-    if(item.quantity >= lowestQuantityAllowed && item.price > lowestPriceAllowed && item.price < highestPriceAllowed && item.upc.toString().length == 12){
+    if(item.quantity >= lowestQuantityAllowed && item.price > lowestPriceAllowed && item.price < highestPriceAllowed && item.upc.toString().length == 12 && item.caliber && item.capacity){
       filtered.push(item);
     }
   });
@@ -151,8 +151,8 @@ function filterInventory(inventory){
 
 function postOnGunBroker(item){
   return new Promise( async (resolve, reject) => {
-
     try{
+
       let thumbnail = fs.readFileSync('./tmp/thumbnail.jpeg');
       let img1 = fs.readFileSync('./tmp/tmp.jpeg');
 
@@ -180,7 +180,7 @@ function postOnGunBroker(item){
       let ShippingPrice = 30;
       
 
-      switch(item.type) {
+      switch(item.category) {
         case 'SHOTGUNS':
           switch (item.action) {
             case 'Semi-Auto':

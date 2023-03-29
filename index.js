@@ -318,7 +318,7 @@ async function getListing(itemNo){
         "User-Agent": "axios 0.21.1"
       },
     }).then((response) => {
-      resolve({upc: response.data.upc, price: response.data.buyPrice, quantity: response.data.quantity});
+      resolve({itemNo: itemNo, upc: response.data.upc, price: response.data.buyPrice, quantity: response.data.quantity, description: response.data.description});
     }).catch((error) => {
       reject(error);
     })
@@ -381,6 +381,65 @@ async function checkAllListings(){
   file.end();
 }
 
+async function fixDescriptions(){
+  // Get every Gunbroker listing item No
+  logProcess("Getting all GunBroker listings");
+  let listings = await getAllListings();
+
+  // Loop through every gunbroker listing
+  console.log(chalk.green.bold("Checking " + listings.length + " listings."));
+  for(let i = 0; i < listings.length; i++){
+    let listing = await getListing(listings[i]).catch((error) => {console.log(error)});
+
+    let noFee = '<div style="background-color:#6de086; border-radius:5px; border:2px solid #5cbe71; box-sizing:border-box; display:flex; margin-bottom:5px; padding:10px; width:100%"><img src="https://secguns.com/wp-content/uploads/2022/12/credit-card.png" style="width:25px;height:25px;">\n' +
+    '<p style="font-weight:bold; line-height:25px; margin-bottom:0; margin-left:10px; margin-right:0; margin-top:0; text-transform:uppercase">No credit card fee!</p>\n' +
+    '</div>\n';
+
+    let timeNotice = 'Due to high volume, shipping will take 7-10 business days';
+    let timeNoticeReplace = "<p style='color:red; font-size:24px;text-align: center; font-weight: bold;'>Due to high volume, shipping will take 7-10 business days.</p>";
+
+    let fix = false;
+    let change = "";
+
+    let data = {
+      description: listing.description,
+      CanOffer: false
+    };
+
+    if(listing.description.includes(noFee)){
+      data.description = data.description.replace(noFee, "");
+      fix = true;
+      change = "noFee";
+    }
+
+    if(!listing.description.includes(timeNotice)){
+      data.description = data.description.replace('VIEW MORE LISTINGS</a>', "VIEW MORE LISTINGS</a>" + timeNoticeReplace);
+      fix = true;
+      change = change + " timeNotice";
+    }
+
+    if(fix){
+      console.log("Updating item: " + listing.itemNo);
+      console.log("change", change);
+
+      let token = await GunBrokerAccessToken;
+      await axios.put('https://api.gunbroker.com/v1/Items/' + listing.itemNo, data, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-DevKey': process.env.GUNBROKER_DEVKEY,
+          'X-AccessToken': token
+        }
+      })
+      .then(function (response) {
+        logProcess(response.data.userMessage,'good');
+      })
+      .catch(function (error) {
+        console.log(error.data);
+      });
+    }
+  }
+}
+
 export {logProcess, currentUserID, GunBrokerAccessToken, checkAlreadyPosted, LipseyAuthToken};
 
 // RUN PROCESS
@@ -395,7 +454,10 @@ async function postAll(){
   console.log(chalk.green.bold("Posting Davidsons products..."));
   let davidsonsPostCount = await postDavidsonsProducts();
 
-  let totalPosted = lispeysPostCount + davidsonsPostCount + RSRPostCount;
+  console.log(chalk.green.bold("Posting Sports South products..."));
+  let SSPostCount = await postSSProducts();
+
+  let totalPosted = lispeysPostCount + davidsonsPostCount + RSRPostCount + SSPostCount;
 
   console.log(chalk.green.bold(totalPosted + " listings posted."));
 }
@@ -403,5 +465,5 @@ async function postAll(){
 // START
 //postAll();
 //checkAllListings();
-//postSSProducts(1);
-fixImages();
+postSSProducts(10);
+//fixDescriptions();
