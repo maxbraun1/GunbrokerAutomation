@@ -1,5 +1,8 @@
 function descriptionGenerator(item){
     var title = item.Manufacturer + " " + item.ModelSeries + " " + item.Caliber + " " + item.Capacity + " | " + item.UPCCode;
+    title = title.replaceAll(" undefined", "");
+    title = title.replaceAll(" null", "");
+    
     let html = "<div style='padding:0;margin:0;background-color:#ffffff;border:1px solid gainsboro;color:black;font-family:Arial, Helvetica, sans-serif;margin:0px;padding:30px;'>";
     html = html + "<img alt='SEC Guns' height='148' src='https://secguns.com/wp-content/uploads/2022/07/White-Background-Navy-Blue-Logo-3882-x-4565-01-2-1-e1658779192334.jpg' style='max-width: 100px; margin:10px auto; display:block;'/>";
     

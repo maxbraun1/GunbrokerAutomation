@@ -184,6 +184,8 @@ function postOnGunBroker(item){
 
       title = Array.from(new Set(title.split(' '))).toString();
       title = title.replaceAll(",", " ");
+      title = title.replaceAll(" undefined", "");
+      title = title.replaceAll(" null", "");
 
       // Prepare listing
       var listingSettings = {
@@ -277,6 +279,7 @@ function postOnGunBroker(item){
       });
 
       resolve();
+      
     }catch(error){
       logProcess(error, 'bad');
       reject(error);

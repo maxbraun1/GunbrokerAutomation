@@ -259,7 +259,7 @@ function postOnGunBroker(item){
           categoryID = 2325;
           break;
         default:
-          categoryID = 4032;
+          categoryID = 3026;
       }
 
       var title = item.manufacturer + " " + item.model + " " + item.caliber + " " + item.capacity + " | " + item.upc;
@@ -273,6 +273,8 @@ function postOnGunBroker(item){
 
       title = Array.from(new Set(title.split(' '))).toString();
       title = title.replaceAll(",", " ");
+      title = title.replaceAll(" undefined", "");
+      title = title.replaceAll(" null", "");
 
       // Prepare listing
       var listingSettings = {

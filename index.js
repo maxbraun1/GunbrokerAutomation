@@ -465,5 +465,4 @@ async function postAll(){
 // START
 //postAll();
 //checkAllListings();
-postSSProducts(10);
 //fixDescriptions();
