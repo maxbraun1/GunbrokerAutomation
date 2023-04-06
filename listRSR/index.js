@@ -111,7 +111,7 @@ function postOnGunBroker(item){
       let quantity;
       
       if(item.quantity >= 50){
-        quantity = 5;
+        quantity = 3;
       }else if(item.quantity < 50 && item.quantity >= 20){
         quantity = 1;
       }else{
@@ -124,7 +124,7 @@ function postOnGunBroker(item){
       let cost = item.rsrPrice;
       let map = item.retailMAP; // Map will be number, 0 if there is no map
 
-      price = cost * 1.15; // set price to cost of gun plus 15% then round to 2 decimals
+      price = cost * 1.14; // set price to cost of gun plus 15% then round to 2 decimals
       price = (Math.round(price * 100) / 100).toFixed(2);
 
       if(price < map){ // if new price is lower than map, set price to map
@@ -221,7 +221,7 @@ function postOnGunBroker(item){
         },
         PaymentPlan: 0,
         PremiumFeatures: {
-          IsFeaturedItem: true,
+          IsFeaturedItem: false, // Test no feature
         },
         PostalCode: "33511",
         Prop65Warning: "Cancer and Reproductive Harm www.P65Warnings.ca.gov",
