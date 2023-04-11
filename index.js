@@ -422,6 +422,6 @@ async function postAll(){
 }
 
 // START (Uncomment function to run)
-//postAll();
+postAll();
 //checkAllListings();
-fixDescriptions();
+//fixDescriptions();
