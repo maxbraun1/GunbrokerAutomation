@@ -17,7 +17,7 @@ async function generateImages(url){
                 sharp.cache(false);
 
                 let template = sharp("tmp/template.jpg");
-                let buffer = await sharp('tmp/tmp.jpeg').resize(890, 640, { fit: sharp.fit.inside }).toBuffer();
+                let buffer = await sharp('tmp/tmp.jpeg').resize(890, 640, { fit: sharp.fit.inside }).flatten({ background: '#FFFFFF' }).toBuffer();
                 
                 await sharp(buffer).toFile("tmp/tmp.jpeg");
 
