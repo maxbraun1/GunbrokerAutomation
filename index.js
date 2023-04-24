@@ -381,24 +381,6 @@ async function checkAllListings(){
   file.end();
 }
 
-async function fixDescriptions(){
-  // Get every Gunbroker listing item No
-  logProcess("Getting all GunBroker listings");
-  let listings = await getAllListings();
-
-  // Loop through every gunbroker listing
-  console.log(chalk.green.bold("Checking " + listings.length + " listings."));
-  for(let i = 0; i < listings.length; i++){
-    let listing = await getListing(listings[i]).catch((error) => {console.log(error)});
-
-    let description = listing.description.toLowerCase();
-
-    if(description.includes("no credit card fee")){
-      console.log(listings[i]);
-    }
-  }
-}
-
 export {logProcess, currentUserID, GunBrokerAccessToken, checkAlreadyPosted, LipseyAuthToken};
 
 // RUN PROCESS

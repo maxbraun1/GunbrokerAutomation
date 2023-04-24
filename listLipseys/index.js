@@ -199,7 +199,8 @@ function postOnGunBroker(item){
         Title: title,
         UPC: item.upc,
         WhoPaysForShipping: 8,
-        WillShipInternational: false
+        WillShipInternational: false,
+        ExcludeStates: 'WA,CA'
       };
 
       const listingSettingsJSON = JSON.stringify(listingSettings);
