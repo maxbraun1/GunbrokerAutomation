@@ -381,6 +381,16 @@ async function checkAllListings() {
 
   let potentialDeletes = [];
 
+  if (
+    LipseysInventory.length < 100 ||
+    DavidsonsInventory.length < 100 ||
+    RSRInventory.length < 100 ||
+    SSInventory.length < 100
+  ) {
+    console.log("Fetching of one or more vendors failed.");
+    return;
+  }
+
   // Loop through every gunbroker listing
   console.log(chalk.green.bold("Checking " + listings.length + " listings."));
   for (let i = 0; i < listings.length; i++) {
