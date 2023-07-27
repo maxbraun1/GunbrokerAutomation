@@ -1,10 +1,10 @@
 node_modules
 tmp
 .env
+files
 davidsons_inventory.csv
 DAV-inventory-with-MAP.txt
 davidsons_quantity.csv
 rsrinventory.txt
 attributes.txt
 GunBrokerUPCChecks.txt
-updatedListings.txt
