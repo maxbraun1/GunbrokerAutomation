@@ -5,7 +5,7 @@ function generatePrice(item) {
   let cost = item.cost;
   let map = item.map; // Map will be number, 0 if there is no map
 
-  price = cost * 1.15; // set price to cost of gun plus 15% then round to 2 decimals
+  price = cost * 1.14; // set price to cost of gun plus 14% then round to 2 decimals
   price = (Math.round(price * 100) / 100).toFixed(2);
 
   if (price < map) {

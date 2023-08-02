@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as dotenv from "dotenv";
+import chalk from "chalk";
 
 dotenv.config();
 
@@ -169,8 +170,11 @@ function findCategory(type, action) {
 }
 
 async function prepLipseysInventory() {
+  console.log(chalk.yellow("Fetching Inventory..."));
   let inventory = await getInventory().catch((error) => console.log(error));
+  console.log(chalk.yellow("Filtering Inventory..."));
   let filteredInventory = await filterInventory(inventory);
+  console.log(chalk.yellow("Normalizing Inventory..."));
   let normalizedInventory = await normalizeInventory(filteredInventory);
   return normalizedInventory;
 }

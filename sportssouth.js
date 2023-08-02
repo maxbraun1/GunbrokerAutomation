@@ -2,6 +2,7 @@ import axios from "axios";
 import * as dotenv from "dotenv";
 import { xml2js } from "xml-js";
 import decodeHtml from "decode-html";
+import chalk from "chalk";
 
 dotenv.config();
 
@@ -58,7 +59,7 @@ function organizeInventory(data) {
           },
         }
       )
-      .then(function (response) {
+      .then((response) => {
         let decoded = decodeHtml(response.data);
         let xml = xml2js(decoded, { compact: true, spaces: 2 });
         let manufacturersUnformated = xml.string.NewDataSet.Table;
@@ -66,7 +67,7 @@ function organizeInventory(data) {
           manufacturers[item.MFGNO._text] = item.MFGNM._text.trimEnd();
         });
       })
-      .catch(function (error) {
+      .catch((error) => {
         reject(error);
       });
 
@@ -89,7 +90,7 @@ function organizeInventory(data) {
           },
         }
       )
-      .then(function (response) {
+      .then((response) => {
         let decoded = decodeHtml(response.data);
         let xml = xml2js(decoded, { compact: true, spaces: 2 });
         let categoriesUnformated = xml.string.NewDataSet.Table;
@@ -97,7 +98,7 @@ function organizeInventory(data) {
           categories[item.CATID._text] = item.CATDES._text.trimEnd();
         });
       })
-      .catch(function (error) {
+      .catch((error) => {
         reject(error);
       });
 
@@ -338,9 +339,12 @@ function findCategory(category, action) {
 }
 
 async function prepSSInventory() {
+  console.log(chalk.yellow("Fetching Inventory..."));
   let unorganizedInventory = await getInventory();
+  console.log(chalk.yellow("Filtering Inventory..."));
   let inventory = await organizeInventory(unorganizedInventory);
   let filteredInventory = filterInventory(inventory);
+  console.log(chalk.yellow("Normalizing Inventory..."));
   let normalizedInventory = await normalizeInventory(filteredInventory);
   return normalizedInventory;
 }

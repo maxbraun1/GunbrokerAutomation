@@ -2,6 +2,7 @@ import fs from "fs";
 import * as dotenv from "dotenv";
 import csvToJson from "convert-csv-to-json/src/csvToJson.js";
 import * as ftp from "basic-ftp";
+import chalk from "chalk";
 
 dotenv.config();
 
@@ -206,8 +207,11 @@ function findCategory(item) {
 }
 
 async function prepRSRInventory() {
+  console.log(chalk.yellow("Fetching Inventory..."));
   let inventory = await getInventory();
+  console.log(chalk.yellow("Filtering Inventory..."));
   let filteredInventory = filterProducts(inventory.products, inventory.productInfo);
+  console.log(chalk.yellow("Normalizing Inventory..."));
   let normalizedInventory = await normalizeInventory(filteredInventory);
   return normalizedInventory;
 }
