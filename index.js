@@ -8,7 +8,6 @@ import { prepRSRInventory, checkRSRInventory } from "./rsr.js";
 import { prepSSInventory, checkSSInventory } from "./sportssouth.js";
 import { generateImages } from "./imageGenerator.js";
 import { postItem } from "./post.js";
-import cancel from "./api.js";
 
 dotenv.config();
 
@@ -175,21 +174,21 @@ async function getListing(itemNo) {
 async function checkAllListings(socket) {
   // Get every Gunbroker listing item No
   logProcess("Getting all GunBroker listings");
-  socket.emit("update", "Getting all GunBroker listings", false, "blue");
+  if (socket) socket.emit("update", "Getting all GunBroker listings", false, "blue");
   let listings = await getAllListings();
 
   // Get every listing from Lipseys, Davidsons, RSR, and SportsSouth
   logProcess("Getting Lipseys Inventory");
-  socket.emit("update", "Getting Lipseys Inventory", false, "blue");
+  if (socket) socket.emit("update", "Getting Lipseys Inventory", false, "blue");
   let LipseysInventory = await checkLipseysInventory();
   logProcess("Getting Davidsons Inventory");
-  socket.emit("update", "Getting Davidsons Inventory", false, "blue");
+  if (socket) socket.emit("update", "Getting Davidsons Inventory", false, "blue");
   let DavidsonsInventory = await checkDavidsonsInventory();
   logProcess("Getting RSR Inventory");
-  socket.emit("update", "Getting RSR Inventory", false, "blue");
+  if (socket) socket.emit("update", "Getting RSR Inventory", false, "blue");
   let RSRInventory = await checkRSRInventory();
   logProcess("Getting Sports South Inventory");
-  socket.emit("update", "Getting Sports South Inventory", false, "blue");
+  if (socket) socket.emit("update", "Getting Sports South Inventory", false, "blue");
   let SSInventory = await checkSSInventory();
 
   let potentialDeletes = [];
@@ -201,14 +200,14 @@ async function checkAllListings(socket) {
     SSInventory.length < 100
   ) {
     console.log("Fetching of one or more vendors failed.");
-    socket.emit("update", "Fetching of one or more vendors failed.", true, "red");
-    socket.emit("finished");
+    if (socket) socket.emit("update", "Fetching of one or more vendors failed.", true, "red");
+    if (socket) socket.emit("finished");
     return;
   }
 
   // Loop through every gunbroker listing
   console.log(chalk.green.bold("Checking " + listings.length + " listings."));
-  socket.emit("update", "Checking " + listings.length + " listings.", true, "green");
+  if (socket) socket.emit("update", "Checking " + listings.length + " listings.", true, "green");
   for (let i = 0; i < listings.length; i++) {
     let listing = await getListing(listings[i]).catch((error) => {
       console.log(error);
@@ -250,7 +249,7 @@ async function checkAllListings(socket) {
           console.log(chalk.bold.white(RSRResults.quantity + " listed on RSR"));
           console.log(chalk.bold.white(SSResults.quantity + " listed on Sports South"));
 
-          socket.emit("update", listing.upc, true, "red");
+          if (socket) socket.emit("update", listing.upc, true, "red");
         }
       }
     }
@@ -267,8 +266,8 @@ async function checkAllListings(socket) {
     file.write(upc + "\n");
   });
   file.end();
-  socket.emit("update", "UPC checks finished.", true, "green");
-  socket.emit("finished");
+  if (socket) socket.emit("update", "UPC checks finished.", true, "green");
+  if (socket) socket.emit("finished");
   return;
 }
 
@@ -285,7 +284,7 @@ async function checkDuplicates(inventory) {
         if (match.cost > highestCost) {
           highestCost = match.cost;
         }
-        inventory.splice(inventory.indexOf(match), 1);
+        delete inventory[inventory.indexOf(match)];
       });
       item.cost = highestCost;
       item.quantity = quantity;
@@ -293,6 +292,7 @@ async function checkDuplicates(inventory) {
     return item;
   });
   console.log(chalk.bold.yellow("Found " + duplicateCount + " duplicates."));
+  newInventory = newInventory.filter((item) => item !== undefined);
   return newInventory;
 }
 
@@ -300,29 +300,35 @@ async function postAllItems(listings, limit, socket) {
   let cancelled = false;
 
   logProcess("Posting " + chalk.bold.green(listings.length) + " items on GunBroker.");
-  socket.emit("update", "Posting " + listings.length + " items on GunBroker.", false, "blue");
+  if (socket) socket.emit("update", "Posting " + listings.length + " items on GunBroker.", false, "blue");
 
   let count = 0;
   let countPosted = 0;
 
-  for (let item of listings) {
+  for (const item of listings) {
     count++;
 
-    await socket.emit("checkCancel", (response) => {
-      if (response) {
-        cancelled = true;
-      }
-    });
+    if (socket)
+      await socket.emit("checkCancel", (response) => {
+        if (response) {
+          cancelled = true;
+        }
+      });
 
-    if (countPosted >= limit || item === undefined) {
-      socket.emit("finished");
+    if (countPosted >= limit) {
+      if (socket) socket.emit("finished");
       return;
+    }
+
+    if (item === undefined) {
+      console.log(item);
+      continue;
     }
 
     if (cancelled) {
       console.log(chalk.red.bold("User Cancelled"));
-      socket.emit("finished");
-      socket.emit("update", "Process cancelled by user.", true, "red");
+      if (socket) socket.emit("finished");
+      if (socket) socket.emit("update", "Process cancelled by user.", true, "red");
       break;
     }
 
@@ -333,19 +339,20 @@ async function postAllItems(listings, limit, socket) {
         chalk.bold.blue.bgWhite(" Item " + count + " / " + listings.length + " ") +
           chalk.bold.yellow(" [" + item.upc + "] Item already posted.")
       );
-      socket.emit(
-        "update",
-        "Item " + count + " / " + listings.length + " [" + item.upc + "] Item already posted.",
-        true,
-        "yellow"
-      );
+      if (socket)
+        socket.emit(
+          "update",
+          "Item " + count + " / " + listings.length + " [" + item.upc + "] Item already posted.",
+          true,
+          "yellow"
+        );
     } else {
       await generateImages(item.imgURL)
         .then(async () => {
           await postItem(item)
             .catch((error) => {
               console.log(error);
-              socket.emit("update", error, true, "red");
+              if (socket) socket.emit("update", error, true, "red");
             })
             .then(() => {
               countPosted++;
@@ -355,35 +362,36 @@ async function postAllItems(listings, limit, socket) {
                     " [" + item.upc + "] " + item.from + " Item (" + item.manufacturer + " " + item.model + ") Posted"
                   )
               );
-              socket.emit(
-                "update",
-                " Item " +
-                  count +
-                  " / " +
-                  listings.length +
-                  " [" +
-                  item.upc +
-                  "] " +
-                  item.from +
-                  " Item (" +
-                  item.manufacturer +
-                  " " +
-                  item.model +
-                  ") Posted",
-                true,
-                "green"
-              );
+              if (socket)
+                socket.emit(
+                  "update",
+                  " Item " +
+                    count +
+                    " / " +
+                    listings.length +
+                    " [" +
+                    item.upc +
+                    "] " +
+                    item.from +
+                    " Item (" +
+                    item.manufacturer +
+                    " " +
+                    item.model +
+                    ") Posted",
+                  true,
+                  "green"
+                );
             });
         })
         .catch((error) => {
           console.log(error);
-          socket.emit("update", error, true, "red");
+          if (socket) socket.emit("update", error, true, "red");
         });
     }
   }
   console.log(chalk.bold.green("Posting complete. " + countPosted + " listings posted."));
-  socket.emit("update", "Posting complete. " + countPosted + " listings posted.", true, "green");
-  socket.emit("finished");
+  if (socket) socket.emit("update", "Posting complete. " + countPosted + " listings posted.", true, "green");
+  if (socket) socket.emit("finished");
   return countPosted;
 }
 
@@ -392,25 +400,25 @@ async function post(config, socket) {
 
   if (config.lip) {
     console.log(chalk.bold.green("------------- LIPSEYS -------------"));
-    socket.emit("update", "------------- LIPSEYS -------------", false, "blue");
+    if (socket) socket.emit("update", "------------- LIPSEYS -------------", false, "blue");
     let lipseysInventory = await prepLipseysInventory();
     inventory.push(...lipseysInventory);
   }
   if (config.dav) {
     console.log(chalk.bold.green("------------ DAVIDSONS ------------"));
-    socket.emit("update", "------------ DAVIDSONS ------------", false, "blue");
+    if (socket) socket.emit("update", "------------ DAVIDSONS ------------", false, "blue");
     let davidsonsInventory = await prepDavidsonsInventory();
     inventory.push(...davidsonsInventory);
   }
   if (config.rsr) {
     console.log(chalk.bold.green("--------------- RSR ---------------"));
-    socket.emit("update", "--------------- RSR ---------------", false, "blue");
+    if (socket) socket.emit("update", "--------------- RSR ---------------", false, "blue");
     let rsrInventory = await prepRSRInventory();
     inventory.push(...rsrInventory);
   }
   if (config.ss) {
     console.log(chalk.bold.green("----------- SPORTS SOUTH ----------"));
-    socket.emit("update", "----------- SPORTS SOUTH ----------", false, "blue");
+    if (socket) socket.emit("update", "----------- SPORTS SOUTH ----------", false, "blue");
     let ssInventory = await prepSSInventory();
     inventory.push(...ssInventory);
   }
@@ -419,7 +427,7 @@ async function post(config, socket) {
   inventory = await checkDuplicates(inventory);
 
   console.log(inventory.length + " total products to post.");
-  socket.emit("update", inventory.length + " total products to post.", false, "blue");
+  if (socket) socket.emit("update", inventory.length + " total products to post.", false, "blue");
 
   await postAllItems(inventory, config.limit, socket);
 }
@@ -427,5 +435,5 @@ async function post(config, socket) {
 export { post, checkAllListings, logProcess, GunBrokerAccessToken };
 
 // START (Uncomment function to run)
-//post({ lip: true, dav: false, rsr: true, ss: true });
+post({ lip: true, dav: false, rsr: true, ss: true });
 //checkAllListings();
