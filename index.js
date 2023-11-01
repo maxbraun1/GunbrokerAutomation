@@ -67,6 +67,12 @@ function checkAlreadyPosted(upc) {
   return new Promise(async (resolve, reject) => {
     let userID = await currentUserID;
     let token = await GunBrokerAccessToken;
+
+    if (!new RegExp("^\\d{12}$").test(upc)) {
+      console.log("Invalid UPC");
+      reject("Invalid UPC");
+    }
+
     axios
       .get("https://api.gunbroker.com/v1/Items?IncludeSellers=" + userID + "&UPC=" + upc, {
         headers: {
@@ -85,7 +91,7 @@ function checkAlreadyPosted(upc) {
       })
       .catch(function (error) {
         console.log(error);
-        reject(new Error(error));
+        reject(error);
       });
   });
 }
@@ -325,6 +331,11 @@ async function postAllItems(listings, limit, socket) {
       continue;
     }
 
+    if (!new RegExp("^\\d{12}$").test(item.upc)) {
+      console.log("Invalid UPC");
+      continue;
+    }
+
     if (cancelled) {
       console.log(chalk.red.bold("User Cancelled"));
       if (socket) socket.emit("finished");
@@ -435,5 +446,5 @@ async function post(config, socket) {
 export { post, checkAllListings, logProcess, GunBrokerAccessToken };
 
 // START (Uncomment function to run)
-post({ lip: true, dav: false, rsr: true, ss: true });
-//checkAllListings();
+post({ lip: true, dav: true, rsr: true, ss: false });
+//heckAllListings();
