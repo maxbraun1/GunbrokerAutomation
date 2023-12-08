@@ -12,6 +12,7 @@ let LipseyAuthToken = new Promise(function (resolve, reject) {
   axios
     .post("https://api.lipseys.com/api/Integration/Authentication/Login", login_credentials, {
       headers: {
+        PresetUrl: process.env.LIPSEYS_KEY,
         "Content-Type": "application/json",
       },
     })
@@ -29,6 +30,7 @@ function getInventory() {
     await axios
       .get("https://api.lipseys.com/api/Integration/Items/CatalogFeed", {
         headers: {
+          PresetUrl: process.env.LIPSEYS_KEY,
           Token: token,
         },
       })

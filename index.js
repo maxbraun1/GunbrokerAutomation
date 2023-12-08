@@ -180,21 +180,22 @@ async function getListing(itemNo) {
 async function checkAllListings(socket) {
   // Get every Gunbroker listing item No
   logProcess("Getting all GunBroker listings");
-  if (socket) socket.emit("update", "Getting all GunBroker listings", false, "blue");
+  //if (socket) socket.emit("update", "Getting all GunBroker listings", false, "blue");
   let listings = await getAllListings();
 
   // Get every listing from Lipseys, Davidsons, RSR, and SportsSouth
   logProcess("Getting Lipseys Inventory");
-  if (socket) socket.emit("update", "Getting Lipseys Inventory", false, "blue");
+  //if (socket) socket.emit("update", "Getting Lipseys Inventory", false, "blue");
   let LipseysInventory = await checkLipseysInventory();
+
   logProcess("Getting Davidsons Inventory");
-  if (socket) socket.emit("update", "Getting Davidsons Inventory", false, "blue");
+  //if (socket) socket.emit("update", "Getting Davidsons Inventory", false, "blue");
   let DavidsonsInventory = await checkDavidsonsInventory();
   logProcess("Getting RSR Inventory");
-  if (socket) socket.emit("update", "Getting RSR Inventory", false, "blue");
+  //if (socket) socket.emit("update", "Getting RSR Inventory", false, "blue");
   let RSRInventory = await checkRSRInventory();
   logProcess("Getting Sports South Inventory");
-  if (socket) socket.emit("update", "Getting Sports South Inventory", false, "blue");
+  //if (socket) socket.emit("update", "Getting Sports South Inventory", false, "blue");
   let SSInventory = await checkSSInventory();
 
   let potentialDeletes = [];
@@ -248,14 +249,21 @@ async function checkAllListings(socket) {
         if (listing.upc) {
           potentialDeletes.push(listing.upc);
 
-          console.log(chalk.bold.bgYellow.black("--- Potential Delete ---"));
           console.log(chalk.red.bold(listing.upc + " (" + listing.quantity + " listed)"));
-          console.log(chalk.bold.white(lipseysResults.quantity + " listed on Lipseys"));
-          console.log(chalk.bold.white(davidsonsResults.quantity + " listed on Davidsons"));
-          console.log(chalk.bold.white(RSRResults.quantity + " listed on RSR"));
-          console.log(chalk.bold.white(SSResults.quantity + " listed on Sports South"));
+          console.log(
+            chalk.bold.white(
+              lipseysResults.quantity +
+                " - LIP | " +
+                davidsonsResults.quantity +
+                " - DAV | " +
+                RSRResults.quantity +
+                " - RSR | " +
+                SSResults.quantity +
+                " - SS"
+            )
+          );
 
-          if (socket) socket.emit("update", listing.upc, true, "red");
+          //if (socket) socket.emit("update", listing.upc, true, "red");
         }
       }
     }
@@ -266,7 +274,7 @@ async function checkAllListings(socket) {
     console.log(err);
   });
   file.write(
-    "These UPCs are listed on GunBroker but may not be available (checked Lipseys, Davidsons, and RSR Group)\n"
+    "These UPCs are listed on GunBroker but may not be available (checked Lipseys, Davidsons, RSR, and Sports South)\n"
   );
   potentialDeletes.forEach(function (upc) {
     file.write(upc + "\n");
@@ -446,5 +454,5 @@ async function post(config, socket) {
 export { post, checkAllListings, logProcess, GunBrokerAccessToken };
 
 // START (Uncomment function to run)
-post({ lip: true, dav: true, rsr: true, ss: false });
-//heckAllListings();
+//post({ lip: true, dav: false, rsr: true, ss: true });
+checkAllListings();
