@@ -178,6 +178,8 @@ async function getListing(itemNo) {
 }
 
 async function checkAllListings(socket) {
+  await checkRSRInventory();
+
   // Get every Gunbroker listing item No
   logProcess("Getting all GunBroker listings");
   //if (socket) socket.emit("update", "Getting all GunBroker listings", false, "blue");
@@ -454,5 +456,5 @@ async function post(config, socket) {
 export { post, checkAllListings, logProcess, GunBrokerAccessToken };
 
 // START (Uncomment function to run)
-//post({ lip: true, dav: false, rsr: true, ss: true });
-checkAllListings();
+post({ lip: true, dav: false, rsr: true, ss: true });
+//checkAllListings();

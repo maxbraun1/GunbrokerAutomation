@@ -10,12 +10,15 @@ async function getInventoryFiles() {
   const client = new ftp.Client();
   client.ftp.verbose = false;
   try {
-    await client.access({
-      host: "rsrgroup.com",
-      user: process.env.RSRUSERNAME,
-      password: process.env.RSRPASSWORD,
-      secure: false,
-    });
+    await client
+      .access({
+        host: "ftps.rsrgroup.com",
+        user: process.env.RSRUSERNAME,
+        password: process.env.RSRPASSWORD,
+        secure: true,
+        port: 2222,
+      })
+      .catch((err) => console.log(err));
     await client.downloadTo("files/rsrinventory.txt", "ftpdownloads/rsrinventory-new.txt");
     await client.downloadTo("files/attributes.txt", "ftpdownloads/attributes-all.txt");
 

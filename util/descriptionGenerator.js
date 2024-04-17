@@ -5,17 +5,14 @@ function descriptionGenerator(item) {
 
   let html =
     "<div style='padding:0;margin:0;background-color:#ffffff;border:1px solid gainsboro;color:black;font-family:Arial, Helvetica, sans-serif;margin:0px;padding:30px;'>";
-  html =
-    html +
-    "<img alt='SEC Guns' height='148' src='https://seattleengravingcenter.com/wp-content/uploads/2023/07/White-Background-Navy-Blue-Logo-3882-x-4565-01-2.jpg' style='max-width: 100px; margin:10px auto; display:block;'/>";
 
   html =
     html +
-    "<a style='display:block;background-color:#031834;color:white;padding:10px 30px;border-radius: 5px;text-decoration: none;margin:20px auto;width:fit-content;' href='https://www.gunbroker.com/All/search?IncludeSellers=2795514' target='_blank'>VIEW MORE LISTINGS</a>";
+    "<p style='color:red; font-size:24px;text-align: center; font-weight: bold; margin-bottom:0;'>Due to high volume, shipping will take 7-10 business days.</p>";
 
   html =
     html +
-    "<p style='color:red; font-size:24px;text-align: center; font-weight: bold;'>Due to high volume, shipping will take 7-10 business days.</p>";
+    "<p style='text-align: center; font-weight: bold;'>Our products are typically sourced directly from distributors. In the event of an item being sold out, a refund for your order will be promptly issued.</p>";
 
   html = html + "<hr style='border:1px solid gainsboro;margin:20px 0;'/>";
 
